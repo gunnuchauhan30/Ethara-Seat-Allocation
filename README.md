@@ -1,68 +1,170 @@
-# Ethara Seat Allocation & Project Mapping System
+# Ethara — Seat Allocation & Project Mapping System
 
-Full-stack project — FastAPI backend + React frontend, with role-based
-login, a 3D dashboard visual, natural-language AI answers, and project
-assignment from the UI.
+A full-stack application for managing seat allocation and project mapping for
+~5,000 employees. Built for HR, Admin, and Project teams to manage and search
+employee seating, project assignments, seat availability, utilization
+metrics, and new-joiner allocations — with a natural-language AI assistant
+on top.
 
-## What's new in this version (v3)
-- **AI Assistant now answers in plain English** instead of dumping raw JSON —
-  it runs the SQL, then asks Claude to summarize the result in a sentence.
-- **Employee ID is now visible and copyable** on the Employees page (small
-  `#123` button next to each row — click to copy). You need this ID to
-  allocate a seat or use New Joiner allocation.
-- **"Assign" button per employee** on the Employees page — opens a modal to
-  pick a project and role, no more guessing where to do this.
-- **Visual polish** — gradient page titles, hover-lift on cards.
-- **3D scene has a safety net** — if WebGL/Three.js fails to load in a
-  browser, it now shows a graceful gradient fallback instead of a blank box.
+## Live Links
+
+| | URL |
+|---|---|
+| **Live Frontend** | https://seat-allocation-ebon.vercel.app |
+| **Live Backend (API)** | https://seat-allocation-2.onrender.com |
+| **API Docs (Swagger)** | https://seat-allocation-2.onrender.com/docs |
+| **Backend Repository** | https://github.com/gunnuchauhan30/seat-allocation |
+| **Full Project Repository (backend + frontend)** | https://github.com/gunnuchauhan30/Ethara-Seat-Allocation |
+
+> ⚠️ The backend is hosted on Render's free tier, which spins down after
+> inactivity. The first request after idle time can take 30–50 seconds to
+> respond — this is expected, not a bug.
+
+## Demo Accounts
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@ethara.ai | admin123 |
+| HR | hr@ethara.ai | hr123 |
+| Employee | employee@ethara.ai | emp123 |
+
+Employees have view-only access. HR and Admin can add employees,
+allocate/release seats, allocate new joiners, and assign projects.
+
+## Tech Stack
+
+**Backend**
+- FastAPI (Python)
+- PostgreSQL (SQLAlchemy ORM + Alembic migrations)
+- JWT-based authentication with role-based access (`employee`, `hr`, `admin`)
+- Faker (seed data generation)
+- Anthropic Claude API — natural language → SQL for the AI Assistant
+
+**Frontend**
+- React + Vite + TypeScript
+- Tailwind CSS
+- Three.js (`@react-three/fiber`, `@react-three/drei`) — 3D dashboard visual
+- Zustand (auth/state management)
+
+**Deployment**
+- Backend: Render (Docker)
+- Frontend: Vercel
+- Database: Railway (PostgreSQL)
+
+## Project Structure
 
 ```
-ethara-fullstack/
-├── backend/    ← FastAPI + PostgreSQL + JWT auth
-└── frontend/   ← React + Vite + TypeScript + Three.js UI
+Ethara-Seat-Allocation/
+├── backend/
+│   ├── app/
+│   │   ├── main.py              # FastAPI entry point, CORS, router registration
+│   │   ├── core/
+│   │   │   ├── database.py      # DB connection/session setup
+│   │   │   └── auth.py          # JWT auth + role-based dependencies
+│   │   ├── models/models.py     # SQLAlchemy models
+│   │   ├── schemas/schemas.py   # Pydantic request/response schemas
+│   │   └── routers/
+│   │       ├── auth.py          # Login
+│   │       ├── employees.py     # Employee CRUD + search
+│   │       ├── seats.py         # Seat CRUD + allocate/release
+│   │       ├── projects.py      # Project CRUD
+│   │       ├── assignments.py   # Employee <-> Project mapping
+│   │       ├── analytics.py     # Dashboard/utilization metrics
+│   │       └── ai_assistant.py  # Natural language query endpoint
+│   ├── alembic/                 # DB migrations
+│   ├── seed.py                  # Generates ~5000 employees, seats, projects, demo users
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── .env.example
+└── frontend/
+    ├── src/
+    │   ├── pages/                # Dashboard, Employees, Projects, Seats, AI Assistant, etc.
+    │   ├── components/           # Sidebar, GlassCard, DashboardHero3D, SeatOccupancyGrid, etc.
+    │   ├── api/                  # API client wrappers
+    │   └── store/authStore.ts    # Auth state (Zustand)
+    ├── package.json
+    └── .env.example
 ```
 
-## What's new in this version
-- **Login & roles** — Admin / HR / Employee. Employees get view-only access;
-  HR and Admin can add employees, allocate/release seats, and allocate new
-  joiners.
-- **3D dashboard visual** — a small animated Three.js scene at the top of the
-  Dashboard page.
+## Database Schema (summary)
 
-## First-time setup (important — do this once)
+- **employees** — employee master data (name, email, code, department, designation, status)
+- **seats** — physical seat inventory (floor, zone, status: vacant/occupied)
+- **projects** — project master data
+- **assignments** — employee ↔ project mapping (`end_date IS NULL` = active assignment)
+- **seat_allocations** — seat allocation history (`released_date IS NULL` = currently occupied)
+- **users** — login accounts (email, hashed password, role)
 
-### 1. Backend: install new dependencies + run the new migration
+Relationships: an employee can have one active seat allocation at a time and
+multiple active project assignments; a seat can have at most one active
+allocation; a project can have many assigned employees.
+
+## Local Setup
+
+### Backend
+
 ```bash
 cd backend
-venv\Scripts\Activate.ps1          # or: source venv/bin/activate on Mac/Linux
-pip install -r requirements.txt    # installs passlib, python-jose, etc.
-alembic upgrade head               # creates the new "users" table
-python seed.py                     # re-seeds data AND creates 3 demo login users
-```
-> `seed.py` clears and re-seeds everything, including 3 demo accounts:
-> `admin@ethara.ai` / `admin123`, `hr@ethara.ai` / `hr123`, `employee@ethara.ai` / `emp123`.
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-### 2. Start the backend
-```bash
+cp .env.example .env
+# edit .env: set DATABASE_URL, JWT_SECRET_KEY, ANTHROPIC_API_KEY
+
+alembic upgrade head
+python seed.py                  # creates ~5000 employees, seats, projects + 3 demo users
+
 uvicorn app.main:app --reload
 ```
-Runs at `http://localhost:8000` — Swagger docs at `http://localhost:8000/docs`.
+API runs at `http://localhost:8000` — Swagger docs at `http://localhost:8000/docs`.
 
-### 3. Frontend: install new dependencies
+### Frontend
+
 ```bash
 cd frontend
-npm install     # installs three, @react-three/fiber, @react-three/drei, zustand
+npm install
+cp .env.example .env
+# edit .env: set VITE_API_URL=http://localhost:8000
+
 npm run dev
 ```
 Runs at `http://localhost:5173`.
 
-### 4. Log in
-Open `http://localhost:5173` — you'll land on a login screen. Use one of the
-demo accounts above (there are quick-login buttons for each role), or type
-credentials manually.
+## API Overview
 
-## Deploying
-- **Backend** → Railway. After deploying, run `alembic upgrade head` and
-  `python seed.py` against the production database once (same as local setup),
-  and set a real `JWT_SECRET_KEY` environment variable.
-- **Frontend** → Vercel, with `VITE_API_URL` set to your live Railway backend URL.
+| Resource | Endpoints |
+|---|---|
+| Auth | `POST /auth/login`, `GET /auth/me` |
+| Employees | `POST/GET /employees/`, `GET/PUT/DELETE /employees/{id}`, `GET /employees/{id}/seat`, `GET /employees/{id}/projects` |
+| Seats | `POST/GET /seats/`, `GET /seats/available`, `POST /seats/{id}/allocate`, `POST /seats/{id}/release`, `POST /seats/new-joiner-allocate` |
+| Projects | `POST/GET /projects/`, `GET/PUT/DELETE /projects/{id}`, `GET /projects/{id}/assignments` |
+| Assignments | `POST/GET /assignments/`, `POST /assignments/{id}/end` |
+| Analytics | `GET /analytics/summary`, `GET /analytics/by-floor`, `GET /analytics/by-department` |
+| AI Assistant | `POST /ai/query` — send `{"question": "..."}`, receive a plain-English, natural-language-derived answer |
+
+Full interactive documentation: https://seat-allocation-2.onrender.com/docs
+
+### AI Assistant
+
+`/ai/query` sends the DB schema plus the user's question to Claude, which
+generates a read-only SQL `SELECT` query. The backend validates that the
+query only contains `SELECT` (blocking `INSERT/UPDATE/DELETE/DROP/ALTER` as a
+safety gate) before executing it against PostgreSQL, then asks Claude to
+summarize the result in plain English rather than returning raw JSON.
+
+## Deployment Notes
+
+- **Backend → Render:** deployed via Docker (`backend/Dockerfile`), root
+  directory set to `backend`. Environment variables (`DATABASE_URL`,
+  `JWT_SECRET_KEY`, `ANTHROPIC_API_KEY`) set in the Render dashboard.
+- **Database → Railway:** managed PostgreSQL instance. The backend connects
+  using Railway's connection string set as `DATABASE_URL` on Render.
+- **Frontend → Vercel:** root directory set to `frontend`, framework preset
+  Vite. `VITE_API_URL` environment variable points to the live Render
+  backend URL (must be set **before** building, since Vite bakes env vars in
+  at build time — changing it requires a redeploy).
+
+See `AI_PROMPTS.md` for the AI tools/prompts used during development, and
+`DEBUGGING_NOTES.md` for issues encountered during development and
+deployment along with how they were resolved.
