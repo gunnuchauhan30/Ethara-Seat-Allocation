@@ -88,8 +88,7 @@ reading the build logs at each step):**
 3. **`ImportError: Could not import module "main"`**
    → Root cause: Dockerfile's `CMD` referenced `main:app`, but the FastAPI
    app lives at `app/main.py`. Fixed by using `app.main:app` in the start
-   command (this was ultimately handled by Render's Docker auto-detection
-   plus the existing Dockerfile `CMD`).
+   command.
 
 4. **`sqlalchemy.exc.OperationalError: connection to server at "localhost"...
    Connection refused`**
@@ -155,14 +154,40 @@ file.
 
 ---
 
+## 6. AI Assistant Failing in Production — Missing `GEMINI_API_KEY` on Render
+
+**Issue:** After the full stack (backend on Render, frontend on Vercel, DB
+on Railway) was live and connected, the AI Assistant page returned:
+`Error: GEMINI_API_KEY not configured on the server. Set it as an
+environment variable.` for every question, even though the rest of the app
+(Dashboard, Employees, Seats, Projects) worked correctly.
+
+**Diagnosis:** The error message itself pointed directly at a missing
+environment variable on the backend host (Render), rather than a code bug —
+confirmed by checking Render's Environment tab, where the key was absent.
+
+**Fix:**
+1. Added `GEMINI_API_KEY` under Render → the backend service → Environment,
+   with the real key value.
+2. Saved changes, which triggered an automatic redeploy.
+
+**Validation:** Confirmed via the Render deploy log showing a clean build
+and `Your service is live`, and by checking runtime logs for
+`POST /ai/query HTTP/1.1" 200 OK`. Re-tested the AI Assistant in the browser
+with sample questions ("Which department has the most employees?", "How
+many seats are vacant on floor 3?") and received plain-English answers
+instead of the error.
+
+---
+
 ## Summary
 
 AI assistance (Claude) was used for:
 - Reading and explaining error logs (build failures, runtime tracebacks,
   browser console errors) across three different platforms (Render,
   Vercel, Railway).
-- Diagnosing root causes (merge-conflict artifacts, misconfigured
-  environment variables, build-time vs. runtime env var behavior).
+- Diagnosing root causes (merge-conflict artifacts, misconfigured or
+  missing environment variables, build-time vs. runtime env var behavior).
 - Proposing and applying targeted, minimal code fixes rather than
   regenerating whole files, so existing intended behavior (e.g.
   role-based auth on sensitive endpoints) was preserved rather than
@@ -173,4 +198,5 @@ All fixes were validated manually by:
 - Reading deployment platform logs after each redeploy to confirm the
   specific error was resolved before moving to the next issue.
 - End-to-end manual testing in the browser (login, employee creation,
-  project assignment, seat allocation) against the live deployed URLs.
+  project assignment, seat allocation, AI Assistant queries) against the
+  live deployed URLs.
