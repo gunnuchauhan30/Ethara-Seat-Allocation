@@ -10,7 +10,7 @@ on top.
 
 | | URL |
 |---|---|
-| **Live Frontend** | https://seat-allocation-ebon.vercel.app |
+| **Live Frontend** | https://ethara-seat-allocation-flame.vercel.app |
 | **Live Backend (API)** | https://seat-allocation-2.onrender.com |
 | **API Docs (Swagger)** | https://seat-allocation-2.onrender.com/docs |
 | **Backend Repository** | https://github.com/gunnuchauhan30/seat-allocation |
