@@ -1,4 +1,4 @@
-# Ethara Seat Allocation & Project Mapping System
+# Ethara Seat Allocation 
 
 A full-stack internal workforce operations platform for managing employee seating, project assignments, new-joiner onboarding, analytics, role-based access control, and an AI-assisted natural-language query interface — built for a ~5,000-employee organization.
 
