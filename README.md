@@ -402,5 +402,10 @@ The `/ai/query` endpoint uses a two-step LLM pipeline rather than a single free-
 ## License
 This project is licensed under the MIT License. See `LICENSE` for details.
 
+## Contact
+Email--> gunnuchauhan30@gmail.com
+Github--> https://github.com/gunnuchauhan30
+Linkedin--> https://github.com/gunnuchauhan30
+
 ## Author
 Built by `<Gunjan>` for the Ethara Technical Assesment.
