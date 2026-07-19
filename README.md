@@ -5,7 +5,7 @@ A full-stack internal workforce operations platform for managing employee seatin
 **Frontend:** React 19 + TypeScript + Vite + Tailwind CSS + Zustand + TanStack Query
 **Backend:** FastAPI (Python 3.12) + SQLAlchemy 2.0 + Alembic + PostgreSQL
 **AI Pipeline:** Gemini 2.5 Flash (text → SQL) + Claude Sonnet (SQL results → plain English)
-=======
+
 A full-stack application for managing seat allocation and project mapping for
 ~5,000 employees. Built for HR, Admin, and Project teams to manage and search
 employee seating, project assignments, seat availability, utilization
@@ -191,35 +191,35 @@ The same GitHub monorepo deploys both services independently — pushes to `/fro
 ![AI Assistant](Images/AIAssistant.png)
 
 ### Dashboard
-![Dashboard](Images/Dashboard.png)
+![Dashboard](images/Dashboard.png)
 Live occupancy, headcount, and project load across the office, with quick links into each section.
 
 ### Employees
-![Employees](Images/Employees.png)
+![Employees](images/Employees.png)
 Search across all 5,000+ employees by name, email, or employee code; filter by department.
 
 ### Employee Detail
-![Employee Detail](Images/Employee_Detail.png)
+![Employee Detail](images/Employee_Detail.png)
 Personal details, current seat, and active project assignments for a single employee.
 
 ### Seats (Floor Plan)
-![Seats](Images/Seats.png)
+![Seats](images/Seats.png)
 View, allocate, and release seats across every floor and zone.
 
 ### Projects
-![Projects](Images/Projects.png)
+![Projects](images/Projects.png)
 All active, on-hold, and completed projects with quick access to assigned employees.
 
 ### Project Detail
-![Project Detail](Images/Project_Detail.png)
+![Project Detail](images/Project_Detail.png)
 Full roster for a project — role, start date, seat, and status per employee.
 
 ### New Joiner Allocation
-![New Joiner](Images/New_Joiner.png)
+![New Joiner](images/New_Joiner.png)
 Automatically assigns the first available seat matching a floor/zone preference.
 
 ### AI Assistant
-![AI Assistant](Images/AI_Assistant.png)
+![AI Assistant](images/AI_Assistant.png)
 Ask natural-language questions about seats, employees, and projects in plain English.
 
 ---
@@ -552,6 +552,11 @@ The `/ai/query` endpoint uses a two-step LLM pipeline rather than a single free-
 
 ## License
 This project is licensed under the MIT License. See `LICENSE` for details.
+
+## Contact
+Email--> gunnuchauhan30@gmail.com
+Github--> https://github.com/gunnuchauhan30
+Linkedin--> https://github.com/gunnuchauhan30
 
 ## Author
 Built by `<Gunjan>` for the Ethara Technical Assesment.
